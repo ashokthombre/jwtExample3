@@ -6,15 +6,8 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-
-public class JwtResponse {
-
-    private String token;
+@Data
+public class RefreshTokenRequest {
 
     private String refreshToken;
-
-    private String username;
-
-
 }

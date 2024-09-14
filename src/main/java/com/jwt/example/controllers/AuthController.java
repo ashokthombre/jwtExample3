@@ -1,9 +1,8 @@
 package com.jwt.example.controllers;
 
 import com.jwt.example.helper.JwtHelper;
-import com.jwt.example.models.JwtRequest;
-import com.jwt.example.models.JwtResponse;
-import com.jwt.example.models.User;
+import com.jwt.example.models.*;
+import com.jwt.example.services.RefreshTokenService;
 import com.jwt.example.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,8 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
@@ -51,9 +52,12 @@ public class AuthController {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = this.helper.generateToken(userDetails);
+        RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(userDetails.getUsername());
+
 
         JwtResponse response = JwtResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken.getRefreshToken())
                 .username(userDetails.getUsername()).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -89,6 +93,22 @@ public class AuthController {
         String encode = this.passwordEncoder.encode(user.getPassword());
            user.setPassword(encode);
         return this.userService.createUser(user);
+    }
+
+
+    @PostMapping("/refresh")
+    public JwtResponse refreshJwtToken(@RequestBody RefreshTokenRequest refreshToken)
+    {
+        RefreshToken refreshToken1 = this.refreshTokenService.verifyRefreshToken(refreshToken.getRefreshToken());
+
+        User user = refreshToken1.getUser();
+        String token = this.helper.generateToken(user);
+
+        return JwtResponse.builder().refreshToken(refreshToken.getRefreshToken())
+                .token(token)
+                .username(user.getEmail())
+                .build();
+
     }
 
 
