@@ -2,6 +2,7 @@ package com.jwt.example.controllers;
 
 import com.jwt.example.helper.JwtHelper;
 import com.jwt.example.models.*;
+import com.jwt.example.services.CloudinaryImageService;
 import com.jwt.example.services.RefreshTokenService;
 import com.jwt.example.services.UserService;
 import org.slf4j.Logger;
@@ -17,6 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -41,6 +45,9 @@ public class AuthController {
 
     @Autowired
     private RefreshTokenService refreshTokenService;
+
+    @Autowired
+    private CloudinaryImageService cloudinaryImageService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
@@ -108,6 +115,21 @@ public class AuthController {
                 .token(token)
                 .username(user.getEmail())
                 .build();
+
+    }
+
+
+    //getting image
+
+    @PostMapping("/upload")
+    public ResponseEntity<Map> uploadImage(@RequestParam("image")MultipartFile file)
+    {
+        Map upload = this.cloudinaryImageService.upload(file);
+        System.out.println(upload.get("url").toString());
+
+
+
+        return new ResponseEntity<>(upload,HttpStatus.OK);
 
     }
 

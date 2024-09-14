@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/create-user").permitAll()
                         .requestMatchers("/auth/refresh").permitAll()
+                        .requestMatchers("/auth/upload").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex->ex.authenticationEntryPoint(point))
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
